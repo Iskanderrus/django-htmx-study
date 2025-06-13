@@ -6,5 +6,11 @@ urlpatterns = [
     path('index/', views.IndexView.as_view(), name='index'),
     path('login/', views.Login.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path("register/", views.RegisterView.as_view(), name="register")
+    path("register/", views.RegisterView.as_view(), name="register"),
 ]
+
+htmx_urlpatterns = [
+    path("check-username/", views.CheckUsernameView.as_view(), name="check-username"),
+]
+
+urlpatterns += htmx_urlpatterns
