@@ -38,7 +38,22 @@ class CheckUsernameView(View):
     def post(self, request):
         username = request.POST.get('username', '').strip()
         UserModel = get_user_model()
-        exists = UserModel.objects.filter(username__iexact=username).exists()
-        if exists:
-            return HttpResponse("<div id='username-errors' style='color:red;'>Username already exists</div>")
-        return HttpResponse("<div id='username-errors' style='color:green;'>Username is available</div>")
+        if UserModel.objects.filter(username__iexact=username).exists():
+            return HttpResponse(
+                """
+                <div id='username-errors' style='color:red;'>Username already exists</div>
+                <script>
+                  document.getElementById('id_password1').setAttribute('disabled', 'disabled');
+                  document.getElementById('id_password2').setAttribute('disabled', 'disabled');
+                </script>
+                """
+            )
+        return HttpResponse(
+            """
+            <div id='username-errors' style='color:green;'>Username is available</div>
+            <script>
+              document.getElementById('id_password1').removeAttribute('disabled');
+              document.getElementById('id_password2').removeAttribute('disabled');
+            </script>
+            """
+        )

@@ -1,3 +1,14 @@
 #navbar {
     height: 100px;
 }
+
+.error {
+    color: red;
+    font-size: 50px;
+    transition: all ease-in 0.5s;
+}
+
+.success {
+    color: green;
+    transition: all ease-in 0.5s;
+}
