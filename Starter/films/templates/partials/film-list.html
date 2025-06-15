@@ -1,0 +1,11 @@
+{% if films %}
+    {% for film in films %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ film.title }}</h5>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No films found</p>
+{% endif %}
