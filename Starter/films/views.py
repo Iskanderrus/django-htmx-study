@@ -61,7 +61,7 @@ class CheckUsernameView(View):
             """
         )
 
-class FilmsView(ListView, LoginRequiredMixin):
+class FilmsView(LoginRequiredMixin, ListView):
     template_name = 'films.html'
     model = Film
     context_object_name = 'films'
@@ -72,7 +72,7 @@ class FilmsView(ListView, LoginRequiredMixin):
             return user.films.all()
         return Film.objects.none()
 
-class AddFilmView(View):
+class AddFilmView(LoginRequiredMixin, View):
     def post(self, request):
         film_name = request.POST.get('filmname', '').strip()
         film, _ = Film.objects.get_or_create(title=film_name)
@@ -80,7 +80,7 @@ class AddFilmView(View):
         films = request.user.films.all()
         return render(request, 'partials/film-list.html', {'films': films})
 
-class DeleteFilmView(DeleteView):
+class DeleteFilmView(LoginRequiredMixin,DeleteView):
     """
     Handles film deletion via DELETE or POST with method override.
     """
@@ -103,3 +103,21 @@ class DeleteFilmView(DeleteView):
             return self.delete(request, *args, **kwargs)
         return super().dispatch(request, *args, **kwargs)
 
+class SearchForFilmsView(LoginRequiredMixin, View):
+    def get(self, request):
+        film_name = request.GET.get('filmsearch', '').strip()
+        if film_name:
+            db_films = Film.objects.filter(title__icontains=film_name)
+            return render(request, 'partials/db-film-list.html', {'db_films': db_films})
+        else:
+            return render(request, 'partials/db-film-list.html', {'db_films': []})
+
+class SearchFilmsView(View):
+    """
+    Returns a list of films matching the search query for live search, excluding user's films.
+    """
+    def get(self, request):
+        query = request.GET.get('filmsearch', '').strip()
+        user_film_ids = request.user.films.values_list('pk', flat=True)
+        db_films = Film.objects.filter(title__icontains=query).exclude(pk__in=user_film_ids) if query else []
+        return render(request, 'partials/db-film-list.html', {'db_films': db_films})

@@ -1,26 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="align-center col-10 offset-1">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="text-center">Films</h1>
-            <form method="post"
-                  hx-post="{% url 'add_film' %}"
-                  hx-target="#films-container"
-                  hx-swap="innerHTML"
-                  hx-on="htmx:afterRequest: this.reset()"
-                  class="d-flex align-items-center">
-                {% csrf_token %}
-                <div class="d-flex flex-column align-items-start">
-                    <input type="text"
-                           name="filmname"
-                           class="form-control-sm mr-2 me-4"
-                           placeholder="Add a film">
-                    <div id="film-errors"></div>
-                </div>
-                <button type="submit" class="btn btn-success btn-sm">Add Film</button>
-            </form>
         </div>
-        <hr>
-        <div id="films-container">{% include "partials/film-list.html" %}</div>
+        <form class="d-flex align-items-center mb-4"
+              method="post"
+              hx-post="{% url 'add_film' %}"
+              hx-target="#films-container"
+              hx-swap="innerHTML">
+            {% csrf_token %}
+            <input type="text"
+                   name="filmname"
+                   class="form-control-sm mr-2 me-4"
+                   placeholder="Add a film">
+            <button type="submit" class="btn btn-success btn-sm">Add Film</button>
+        </form>
+        <div class="row">
+            <div class="col-md-8">
+                <div id="films-container">{% include "partials/film-list.html" %}</div>
+            </div>
+            <div class="col-md-4 d-flex flex-column align-items-start">
+                {% csrf_token %}
+                <input name="filmsearch"
+                       type="text"
+                       class="form-control"
+                       placeholder="Search films"
+                       hx-get="{% url 'search_films' %}"
+                       hx-target="#db-films-container"
+                       hx-swap="innerHTML"
+                       hx-trigger="input changed delay:50ms">
+                <div id="db-films-container">{% include "partials/db-film-list.html" %}</div>
+            </div>
+        </div>
     </div>
 {% endblock content %}

@@ -1,0 +1,18 @@
+{% if db_films %}
+    <ul class="list-group">
+        {% for film in db_films %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span class="fw-bold ms-4">{{ film.title }}</span>
+                <button class="btn btn-success btn-sm ms-4"
+                        hx-post="{% url 'add_film' %}"
+                        hx-target="#films-container"
+                        hx-swap="innerHTML"
+                        hx-vals='{"filmname": "{{ film.title }}"}'
+                        hx-confirm="Are you sure you want to add this film?"
+                        hx-on::after-request="this.closest('li').remove()">Add</button>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No films found</p>
+{% endif %}
