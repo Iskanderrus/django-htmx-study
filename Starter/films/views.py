@@ -1,8 +1,8 @@
 from django.http import JsonResponse
-from django.http.response import HttpResponse, HttpResponsePermanentRedirect
+from django.http.response import HttpResponse, HttpResponsePermanentRedirect, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.contrib.auth.views import LoginView
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView
 
 from django.urls import reverse_lazy
 from django.views import View
@@ -61,28 +61,6 @@ class CheckUsernameView(View):
             """
         )
 
-class CheckFilmNameView(View):
-    def post(self, request):
-        user = request.user
-        film_name = request.POST.get('filmname', '').strip()
-        if not film_name:
-            return HttpResponse(
-                """
-                <div id='film-errors' style='color:grey;'>Please start typing a film name above</div>
-                """
-            )
-        if user.films.filter(title__icontains=film_name).exists():
-            return HttpResponse(
-                """
-                <div id='film-errors' style='color:red;'>Film probably already exists in your list</div>
-                """
-            )
-        return HttpResponse(
-            """
-            <div id='film-errors' style='color:green;'>This film is not in your list</div>
-            """
-        )
-
 class FilmsView(ListView, LoginRequiredMixin):
     template_name = 'films.html'
     model = Film
@@ -101,3 +79,27 @@ class AddFilmView(View):
         request.user.films.add(film)
         films = request.user.films.all()
         return render(request, 'partials/film-list.html', {'films': films})
+
+class DeleteFilmView(DeleteView):
+    """
+    Handles film deletion via DELETE or POST with method override.
+    """
+    model = Film
+    success_url = reverse_lazy('film_list')
+    template_name = 'partials/film-list.html'
+
+    def get_queryset(self):
+        # this method is being used by sef.get_object in the delete method
+        return self.request.user.films.all()
+
+    def delete(self, request, *args, **kwargs):
+        request.user.films.remove(self.get_object())
+        films = request.user.films.all()
+        return render(request, 'partials/film-list.html', {'films': films})
+
+    def dispatch(self, request, *args, **kwargs):
+        # this method is being used to handle the DELETE method
+        if request.method == 'DELETE':
+            return self.delete(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+

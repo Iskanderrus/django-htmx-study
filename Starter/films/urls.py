@@ -12,8 +12,8 @@ urlpatterns = [
 
 htmx_urlpatterns = [
     path("check-username/", views.CheckUsernameView.as_view(), name="check-username"),
-    path("check-film-name/", views.CheckFilmNameView.as_view(), name="check-film-name"),
     path("add-film/", views.AddFilmView.as_view(), name="add_film"),
+    path("delete-film/<int:pk>/", views.DeleteFilmView.as_view(), name="delete_film"),
 ]
 
 urlpatterns += htmx_urlpatterns
